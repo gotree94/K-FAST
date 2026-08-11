@@ -1,4 +1,4 @@
-# K-FAST(KCCI-Furiosa AI Skills Training) 교강사 선발 온보딩 교육<br> — 사전 준비 자료 개요
+# K-FAST(KCCI(Korea Chamber of Commerce and Industry, 대한상공회의소)-Furiosa AI Skills Training) 교강사 선발 온보딩 교육<br> — 사전 준비 자료 개요
 
 > **목적** : K-FAST 온보딩 교육을 담당할 교강사를 선발하기 위한 인증 평가를 앞두고, <br>
 > 예상되는 교육 내용과 인증 평가 대비 자료를 체계적으로 정리한 문서 모음입니다. <br>
