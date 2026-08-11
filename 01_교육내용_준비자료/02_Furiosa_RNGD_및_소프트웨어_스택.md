@@ -1,8 +1,8 @@
 # 모듈 2. Furiosa AI RNGD 및 Software Stack 소개
 
-> **파일 경로** : `01_교육내용_준비자료/02_Furiosa_RNGD_및_소프트웨어_스택.md`<br>
-> **성격** : 이론 기반. RNGD 하드웨어의 세부 사양과 FuriosaAI 소프트웨어 스택의 역할을 이해하는 모듈.<br>
-> **예상 시수** : 이론 2.5시간 + Q&A 0.5시간<br>
+> **파일 경로** : `01_교육내용_준비자료/02_Furiosa_RNGD_및_소프트웨어_스택.md`
+> **성격** : 이론 기반. RNGD 하드웨어의 세부 사양과 FuriosaAI 소프트웨어 스택의 역할을 이해하는 모듈.
+> **예상 시수** : 이론 2.5시간 + Q&A 0.5시간
 
 ---
 
@@ -93,14 +93,14 @@
 
 | 계층 | 구성 요소 | 역할 |
 |------|-----------|------|
-| OS/디바이스 | **커널 드라이버** | Linux가 NPU를 디바이스 파일로 인식하게 함. <br>인식 안 되면 재설치 |
+| OS/디바이스 | **커널 드라이버** | Linux가 NPU를 디바이스 파일로 인식하게 함. 인식 안 되면 재설치 |
 | NPU 내부 | **펌웨어 + PERT** | PE 자원 관리·스케줄링, 호스트 런타임과 통신 |
-| 컴파일 | **Furiosa Compiler** | 모델 그래프 최적화, 연산자 융합, 메모리 할당, <br>스케줄링, 데이터 이동 최적화 → **ENF** 실행 파일 생성 |
-| 실행 | **Furiosa Runtime** | 컴파일된 프로그램 로드·실행, <br>NPU/호스트 메모리 할당, 멀티 NPU 통합 관리 |
-| LLM 서빙 | **furiosa-llm** | LLM/멀티모달 고성능 추론 엔진. <br>vLLM 호환 API + OpenAI 호환 서버 |
+| 컴파일 | **Furiosa Compiler** | 모델 그래프 최적화, 연산자 융합, 메모리 할당, 스케줄링, 데이터 이동 최적화 → **ENF** 실행 파일 생성 |
+| 실행 | **Furiosa Runtime** | 컴파일된 프로그램 로드·실행, NPU/호스트 메모리 할당, 멀티 NPU 통합 관리 |
+| LLM 서빙 | **furiosa-llm** | LLM/멀티모달 고성능 추론 엔진. vLLM 호환 API + OpenAI 호환 서버 |
 | 모니터링/관리 | **furiosa-smi** | NPU 정보·상태·활용률·전력·온도 확인 (CLI) |
 | 벤치마크 | **furiosa-bench / furiosa-perf / furiosa-mlperf** | 성능 측정, LLM 서빙 벤치마크, MLPerf 실행 |
-| 메트릭 | **furiosa-npu-metrics-exporter** | OpenMetrics 형식으로 지표 노출<br> → Prometheus 수집 |
+| 메트릭 | **furiosa-npu-metrics-exporter** | OpenMetrics 형식으로 지표 노출 → Prometheus 수집 |
 | 모델 배포 | **Hugging Face 허브 (furiosa-ai/*)** | 사전 컴파일된 모델(FXB 포함) 제공 |
 
 ### 4.1 Furiosa Compiler와 ENF

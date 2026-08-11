@@ -19,18 +19,48 @@
 
 ## 2. 실습 환경 구성
 
-### 2.1 하드웨어/OS 요건
+### 2.1 실습 운영 구조 (노트북 = 클라이언트, RNGD 서버 = 계산)
 
-| 항목 | 요건 |
-|------|------|
-| OS | Linux (Ubuntu 계열 권장) |
-| 가속기 | Furiosa RNGD NPU 1장 이상 |
-| 드라이버 | Furiosa 커널 드라이버 설치 + 재부팅 후 디바이스 인식 확인 |
-| 컨테이너 | Docker 사용 시 `--device /dev/rngd` 및 `--security-opt seccomp=unconfined` 필요 |
-| 계정 | GPU/NPU 리소스가 개별 할당되는 경우 본인 장치 번호 사용 (예: npu0) |
-| 인터넷 | HF 허브 모델 다운로드 필요. `HF_TOKEN` 환경변수(게이트 모델) 준비 |
+> 교육 준비물로 **노트북**을 요구하는 것은, 실습 계산이 노트북에서 일어나는 것이 아니라
+> **노트북이 원격 RNGD 서버에 접속하는 클라이언트**로 동작하기 때문입니다.
+> 모든 컴파일·추론·모니터링은 RNGD가 장착된 리눅스 서버에서 수행합니다.
 
-### 2.2 환경 확인 명령
+```
+[노트북(클라이언트)]                        [RNGD 서버(리눅스)]
+  ┌──────────────────────┐                  ┌─────────────────────────┐
+  │ 터미널 / VS Code      │   SSH / Remote   │ Furiosa SDK(furiosa-llm) │
+  │ JupyterLab(브라우저)  │ ───────────────► │ RNGD NPU (1~8장)          │
+  │ curl / OpenAI SDK     │ ◄─────────────── │ furiosa-smi · 모델 캐시    │
+  │ (모델 개발·파일 편집)  │  결과·로그/화면  │ 컴파일 → 실행 → 모니터링   │
+  └──────────────────────┘                  └─────────────────────────┘
+```
+
+**노트북에서 하는 일**
+- SSH(`ssh user@server_ip`)로 서버 접속 → 터미널에서 명령 실행
+- VS Code **Remote-SSH**로 서버의 코드를 편집·실행 (로컬에 SDK 불필요)
+- 브라우저로 **JupyterLab** 접속해 실습 진행
+- **포트포워딩**(`ssh -L 8000:localhost:8000`) 후 curl/OpenAI SDK로 furiosa-llm API 호출 테스트
+- (선택) 노트북에서 모델을 만들었다면 ONNX로 export 후 **scp/git으로 서버에 전달**
+
+**주의 (교육 첫 시간에 강조)**
+- 노트북 로컬 GPU로 추론하는 것이 아니라 **원격 NPU를 사용**하는 것.
+- 컴파일러·런타임도 서버에 설치되므로 노트북 사양은 낮아도 무방(터미널·브라우저 수준).
+- 실습 성공 판정은 "노트북 화면에 뜨는 서버 결과" 기준.
+
+### 2.2 하드웨어/OS 요건
+
+| 구분 | 항목 | 요건 |
+|------|------|------|
+| 클라이언트(노트북) | OS | Windows/macOS/Linux 무관 (SSH·브라우저 가능) |
+| 클라이언트(노트북) | 준비물 | SSH 클라이언트, 내부망/인터넷 접속, (권장) VS Code Remote-SSH |
+| 서버 | OS | Linux (Ubuntu 계열 권장) |
+| 서버 | 가속기 | Furiosa RNGD NPU 1장 이상 |
+| 서버 | 드라이버 | Furiosa 커널 드라이버 설치 + 재부팅 후 디바이스 인식 확인 |
+| 서버 | 컨테이너 | Docker 사용 시 `--device /dev/rngd` 및 `--security-opt seccomp=unconfined` 필요 |
+| 계정 | - | GPU/NPU 리소스가 개별 할당되는 경우 본인 장치 번호 사용 (예: npu0) |
+| 네트워크 | - | HF 허브 모델 다운로드 필요. `HF_TOKEN` 환경변수(게이트 모델) 준비 |
+
+### 2.3 환경 확인 명령
 
 ```bash
 # NPU 인식/정보 확인
@@ -43,7 +73,7 @@ furiosa-smi ps            # NPU를 점유 중인 프로세스
 - `furiosa-smi info`에 장치가 안 보이면 드라이버 설치/재부팅 점검.
 - `status`에서 코어 활용률이 `-` 로 표시되면 현재 유휴 상태.
 
-### 2.3 패키지 설치
+### 2.4 패키지 설치
 
 ```bash
 # (예시) pip 기반 설치
@@ -161,6 +191,10 @@ curl http://localhost:8000/v1/chat/completions \
   - 프롬프트별 출력 토큰이 생성됨.
   - `furiosa-smi status`에서 NPU 코어 활용률이 상승함(예: 90% 이상).
   - `furiosa-smi ps`에서 본인 프로세스가 NPU를 점유 중인지 확인.
+- **원격 환경에서 확인 요령** :
+  - 노트북 터미널(SSH)에서 서버 로그·`furiosa-smi` 출력을 그대로 확인.
+  - API 서버 테스트는 **포트포워딩**(`ssh -L 8000:localhost:8000`) 후
+    노트북 로컬에서 `curl http://localhost:8000/...` 호출 → 실제 배포처럼 체감 가능.
 - **성능 확인** : `--prompt-log` 옵션 또는 서버 로그에서 TTFT·tokens/s 확인 (모듈 4에서 상세).
 
 ---
@@ -169,6 +203,7 @@ curl http://localhost:8000/v1/chat/completions \
 
 | 증상 | 원인/대응 |
 |------|-----------|
+| SSH 접속 불가 / 지연 | 서버 IP·계정·내부망 방화벽 확인, VPN 필요 여부, 세션 타임아웃 시 재접속 |
 | `furiosa-smi`에 장치 없음 | 드라이버 미설치/미로드 → 드라이버 재설치 후 재부팅 |
 | `/dev/rngd` 접근 거부 | 컨테이너에 `--device /dev/rngd` 추가, 권한 확인 |
 | 모델 다운로드 실패 / 401 | 게이트 모델은 `HF_TOKEN` 필요. 모델 라이선스 동의 확인 |
@@ -185,23 +220,25 @@ curl http://localhost:8000/v1/chat/completions \
 
 > 실습 인원이 카드에 비해 많으면 **1명당 NPU 1장 또는 카드 공유(PE 분할)** 로 진행.
 > 모델은 작은 것(Qwen3-0.5B/1.5B → 8B)부터 단계적으로.
+> **전제** : 모든 실습은 노트북(SSH)에서 RNGD 서버에 접속해 진행. 첫 시간에 SSH 접속·포트포워딩을 함께 점검한다.
 
 | 단계 | 시간 | 활동 | 산출물 |
 |------|------|------|--------|
-| 1 | 20분 | 환경 점검: `furiosa-smi info/status/topo`, `furiosa-llm --version` | 점검 로그 |
+| 1 | 20분 | SSH 접속 확인 + 환경 점검: `furiosa-smi info/status/topo`, `furiosa-llm --version` | 점검 로그 |
 | 2 | 30분 | 0.5B/1.5B 모델 오프라인 추론 (`generate`) | 출력 확인 |
 | 3 | 30분 | 스트리밍(`stream_generate`) + 채팅(`chat`) | 토큰 스트리밍 확인 |
 | 4 | 40분 | 8B 모델 로드, `furiosa-llm serve` 기동 | 서버 정상화 |
-| 5 | 30분 | curl로 `/v1/chat/completions` 호출, OpenAI SDK 연동 | API 응답 |
+| 5 | 30분 | **포트포워딩 후** curl로 `/v1/chat/completions` 호출, OpenAI SDK 연동 | API 응답 |
 | 6 | 30분 | 배치 크기·`max_tokens` 변경하며 `furiosa-smi status` 관찰 + 실습일지 작성 | 관찰 기록 |
 
-**실습 평가 포인트** : 명령 실행 정확성, 오류 대응, NPU 활용률 확인, 결과 해석.
+**실습 평가 포인트** : 명령 실행 정확성, 오류 대응, NPU 활용률 확인, 결과 해석, 원격 접속 환경에서의 문제 해결.
 
 ---
 
 ## 7. 핵심 포인트 요약
 
 - 실습의 첫 단계는 **환경 확인**(furiosa-smi) → 장치가 안 보이면 드라이버부터.
+- **노트북은 클라이언트**이고 계산은 RNGD 서버에서 발생한다. SSH 접속·포트포워딩이 실습의 시작.
 - 모델은 HF 허브의 `furiosa-ai/*` 사전 컴파일 모델을 사용해 컴파일 없이 즉시 실행.
 - 오프라인 → 스트리밍 → 채팅 → API 서버 순으로 확장하며 학습.
 - vLLM 호환 API 덕분에 기존 코드 이식이 쉽다.
@@ -214,4 +251,5 @@ curl http://localhost:8000/v1/chat/completions \
 - **Q. 반드시 사전 컴파일 모델만 써야 하나요?** → A. 아닙니다. 일반 HF 모델도 지원 아키텍처라면 furiosa-llm이 빌드/컴파일을 처리합니다. 다만 사전 컴파일 모델이 시간을 절약합니다.
 - **Q. NPU를 안 쓰고 CPU로도 돌리면 되지 않나요?** → A. 가능은 하지만, 이 교육의 목적은 NPU를 활용한 고성능 추론입니다. NPU 미할당 시 CPU 실행은 교육 목표와 다릅니다.
 - **Q. 여러 사람이 한 서버를 쓸 때 어떻게 나누나요?** → A. 카드 단위(`--devices npu:0,1,2,3` 등)로 분리하거나, PE 단위/멀티인스턴스로 분할합니다. `furiosa-smi status`로 점유 상태를 확인합니다.
+- **Q. 노트북에 Furiosa SDK를 설치해야 하나요?** → A. 아닙니다. SDK는 RNGD 서버에만 있으면 되고, 노트북은 SSH/VS Code Remote·JupyterLab·포트포워딩으로 접속만 합니다. 로컬에 SDK를 설치해도 NPU가 없으면 실행할 수 없습니다.
 - **Q. `furiosa-llm serve`와 `vLLM`은 어떤 관계인가요?** → A. furiosa-llm은 vLLM 호환 API를 제공하는 RNGD 전용 추론 엔진입니다. RNGD에서는 vLLM 대신 furiosa-llm을 사용합니다.
