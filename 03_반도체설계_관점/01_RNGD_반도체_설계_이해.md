@@ -257,3 +257,56 @@
 - [ ] "추정" 수치(§10)는 추정임을 명시하고 교육하는가
 - [ ] 컴파일러가 하드웨어 설계의 일부라는 점(HW-SW 공동 설계)을 강조하는가
 
+---
+
+## 12. 참고 자료 (문서·논문·영상)
+
+> 링크는 작성 시점 기준입니다. 최신 정보는 FuriosaAI 공식 사이트/공식 문서에서 재확인하세요.
+> 논문·슬라이드 등 일부 PDF는 최신 버전과 수치가 다를 수 있습니다.
+
+### 12.1 논문·학술 발표 (아키텍처 근거)
+
+| 자료 | 내용 | 링크 |
+|------|------|------|
+| TCP: A Tensor Contraction Processor for AI Workloads (ISCA 2024) | TCP 아키텍처 제안 논문 (FuriosaAI CTO 김한준 발표) | [ISCA 2024 발표 영상](https://www.youtube.com/watch?v=XKTWKCh9XvU) |
+| FuriosaAI RNGD: A Tensor Contraction Processor for Sustainable AI Computing (MICRO 2025) | RNGD 마이크로아키텍처 상세(PE/TU/슬라이스/회로 스위치 페치 네트워크 등) | [PDF](https://web.ist.utl.pt/nuno.lopes/pubs/tcp-micro25.pdf) |
+| RNGD – Tensor Contraction Processor for Sustainable AI Computing (Hot Chips 2024) | CEO 백준호 발표 슬라이드(HW 아키텍처·칩 설계·SW 풀스택) | [PDF](https://hc2024.hotchips.org/assets/program/conference/day1/83_HC2024.Furiosa.JunePaik.Final.pdf) |
+
+### 12.2 공식 데이터시트·제품 문서
+
+| 자료 | 내용 | 링크 |
+|------|------|------|
+| RNGD Datasheet (2025.3.0) | 정식 사양표(성능·메모리·전력·폼팩터) | [PDF](https://static.furiosa.info/Media%20Kit%20and%20Resources/RNGD-Datasheet-2025.3.0.pdf) |
+| RNGD 제품 페이지 | 개요·특징·발음 안내 | [furiosa.ai/rngd](https://furiosa.ai/rngd) |
+| RNGD 사양 페이지 | 사양 요약 | [furiosa.ai/renegade-spec](https://furiosa.ai/renegade-spec) |
+
+### 12.3 공식 개발 문서 (소프트웨어·시스템)
+
+| 자료 | 내용 | 링크 |
+|------|------|------|
+| RNGD 개요 (Developer Center) | 아키텍처·사양·관련 논문 안내 | [developer.furiosa.ai](https://developer.furiosa.ai/latest/en/overview/rngd.html) |
+| Software Stack 개요 | 드라이버→컴파일러→런타임→furiosa-llm 계층 | [developer.furiosa.ai](https://developer.furiosa.ai/latest/en/overview/software_stack.html) |
+| furiosa-llm 소개 | LLM 서빙 엔진 기능(PagedAttention·연속 배치·OpenAI 호환) | [developer.furiosa.ai](https://developer.furiosa.ai/latest/en/furiosa_llm/intro.html) |
+| furiosa-smi | 시스템 관리 인터페이스(상태·활용률·전력·온도) | [developer.furiosa.ai](https://developer.furiosa.ai/latest/en/device_management/system_management_interface.html) |
+
+### 12.4 공식 블로그·기술 설명
+
+| 자료 | 내용 | 링크 |
+|------|------|------|
+| Tensor Contraction Processor: AI Chip Architecture | TCP 아키텍처 개념 설명 (블로그) | [furiosa.ai/blog](https://furiosa.ai/blog/tensor-contraction-processor-ai-chip-architecture) |
+| RNGD Preview | RNGD 소개·GPU와의 차이 | [furiosa.ai/blog](https://furiosa.ai/blog/rngd-preview-furiosa-ai) |
+| Architecture TCP | TCP 설계 철학(텐서 지오메트리·컴파일러 공동 설계) | [furiosa.ai/architecture](https://furiosa.ai/architecture) |
+
+### 12.5 동영상 자료
+
+| 자료 | 내용 | 링크 |
+|------|------|------|
+| ISCA 2024: TCP 발표 | CTO가 설명하는 TCP 아키텍처(PE·슬라이스·컴파일러) | [YouTube](https://www.youtube.com/watch?v=XKTWKCh9XvU) |
+| High-Speed Inference Throughput (Furiosa SDK) | 1카드(RNGD 180W)로 동시 LLM 요청 처리 시연 | [YouTube](https://www.youtube.com/watch?v=t21GKPzM6eg) |
+
+### 12.6 참고 시 유의사항
+
+- **TDP 표기 차이** : 공식 개발 문서는 150W, 일부 데이터시트/영상은 180W로 표기 — 배포 대상 카드 기준으로 확인.
+- **성능 비교 수치** : 논문(ISCA/MICRO/Hot Chips)의 GPU 대비 성능/와트 수치는 시점·워크로드 의존 — 교육 시 "당시 발표 기준"임을 명시.
+- **링크 변동** : 문서 버전(2025.x/2026.x)이 바뀌면 경로가 변경될 수 있음 — 접속 불가 시 `developer.furiosa.ai`에서 재검색.
+
